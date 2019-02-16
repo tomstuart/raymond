@@ -42,6 +42,7 @@ class Minimap {
   }
 
   drawCamera(eye, film) {
+    this.ctx.fillStyle = 'black';
     this.ctx.fillRect(eye.x - 5 / this.zoom, eye.z - 5 / this.zoom, 10 / this.zoom, 10 / this.zoom);
 
     this.ctx.setLineDash([]);
@@ -68,6 +69,7 @@ class Minimap {
 
   drawSpheres(spheres) {
     spheres.forEach(sphere => {
+      this.ctx.fillStyle = `rgba(${sphere.color.red}, ${sphere.color.green}, ${sphere.color.blue}, ${sphere.color.alpha})`;
       this.ctx.beginPath();
       this.ctx.arc(sphere.center.x, sphere.center.z, sphere.radius, 0, 2 * Math.PI);
       this.ctx.fill();
