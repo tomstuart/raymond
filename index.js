@@ -21,6 +21,60 @@ class Canvas {
   }
 }
 
+class Minimap {
+  constructor(el, zoom) {
+    this.el = el;
+    this.zoom = zoom;
+    this.width = el.width;
+    this.height = el.height;
+
+    this.ctx = el.getContext('2d');
+    this.ctx.translate(this.width / 2, this.height / 2);
+    this.ctx.scale(this.zoom, -this.zoom);
+    this.ctx.lineWidth = 1 / this.zoom;
+  }
+
+  clear() {
+    this.ctx.save();
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    this.ctx.restore();
+  }
+
+  drawCamera(eye, film) {
+    this.ctx.fillRect(eye.x - 5 / this.zoom, eye.z - 5 / this.zoom, 10 / this.zoom, 10 / this.zoom);
+
+    this.ctx.setLineDash([]);
+    this.ctx.beginPath();
+    this.ctx.moveTo(film.origin.x, film.origin.z);
+    this.ctx.lineTo(film.origin.x + film.width, film.origin.z);
+    this.ctx.stroke();
+
+    const xDelta = film.origin.x - eye.x;
+    const zDelta = film.origin.z - eye.z;
+    const extent = 10;
+    this.ctx.setLineDash([5 / this.zoom]);
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(eye.x, eye.z);
+    this.ctx.lineTo(film.origin.x + xDelta * extent, film.origin.z + zDelta * extent);
+    this.ctx.stroke();
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(eye.x, eye.z);
+    this.ctx.lineTo(film.origin.x + film.width - xDelta * extent, film.origin.z + zDelta * extent);
+    this.ctx.stroke();
+  }
+
+  drawSpheres(spheres) {
+    spheres.forEach(sphere => {
+      this.ctx.beginPath();
+      this.ctx.arc(sphere.center.x, sphere.center.z, sphere.radius, 0, 2 * Math.PI);
+      this.ctx.fill();
+    });
+  }
+}
+
 const sqr = n => n * n;
 const clamp = (n, min, max) => n < min ? min : n > max ? max : n;
 
@@ -190,6 +244,7 @@ class Light {
 
 (function() {
   const canvas = new Canvas(document.getElementById('canvas'));
+  const minimap = new Minimap(document.getElementById('minimap'), 10);
 
   const eye = new Vec(3, 3, 0);
   const film = new Film(new Vec(0, 0, 3), 6, 6);
@@ -244,6 +299,10 @@ class Light {
     }
 
     canvas.render();
+
+    minimap.clear();
+    minimap.drawCamera(eye, film);
+    minimap.drawSpheres(spheres);
   }
 
   window.addEventListener('keyup', event => {
