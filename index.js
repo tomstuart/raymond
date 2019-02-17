@@ -46,6 +46,7 @@ class Minimap {
     this.ctx.fillRect(eye.x - 5 / this.zoom, eye.z - 5 / this.zoom, 10 / this.zoom, 10 / this.zoom);
 
     this.ctx.setLineDash([]);
+    this.ctx.strokeStyle = 'black';
     this.ctx.beginPath();
     this.ctx.moveTo(film.origin.x, film.origin.z);
     this.ctx.lineTo(film.origin.x + film.width, film.origin.z);
@@ -73,6 +74,29 @@ class Minimap {
       this.ctx.beginPath();
       this.ctx.arc(sphere.center.x, sphere.center.z, sphere.radius, 0, 2 * Math.PI);
       this.ctx.fill();
+    });
+  }
+
+  drawLights(lights) {
+    const size = 0.5;
+    const lines = 10;
+
+    lights.forEach(light => {
+      this.ctx.fillStyle = 'orange';
+      this.ctx.strokeStyle = 'orange';
+
+      this.ctx.beginPath();
+      this.ctx.arc(light.origin.x, light.origin.z, size, 0, 2 * Math.PI);
+      this.ctx.fill();
+
+      this.ctx.setLineDash([]);
+      for (let line = 0; line < lines; line++) {
+        let angle = line * (2 * Math.PI) / lines;
+        this.ctx.beginPath();
+        this.ctx.moveTo(light.origin.x + Math.cos(angle) * size * 1.2, light.origin.z + Math.sin(angle) * size * 1.2);
+        this.ctx.lineTo(light.origin.x + Math.cos(angle) * size * 2, light.origin.z + Math.sin(angle) * size * 2);
+        this.ctx.stroke();
+      }
     });
   }
 }
@@ -305,6 +329,7 @@ class Light {
     minimap.clear();
     minimap.drawCamera(eye, film);
     minimap.drawSpheres(spheres);
+    minimap.drawLights(lights);
   }
 
   window.addEventListener('keyup', event => {
