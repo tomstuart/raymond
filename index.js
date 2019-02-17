@@ -68,7 +68,7 @@ class Minimap {
   }
 
   drawSpheres(spheres) {
-    spheres.forEach(sphere => {
+    spheres.sort((a, b) => a.center.y - b.center.y).forEach(sphere => {
       this.ctx.fillStyle = `rgba(${sphere.color.red}, ${sphere.color.green}, ${sphere.color.blue}, ${sphere.color.alpha})`;
       this.ctx.beginPath();
       this.ctx.arc(sphere.center.x, sphere.center.z, sphere.radius, 0, 2 * Math.PI);
